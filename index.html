@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SketchMix</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+
+        </div>
+    </div>
+    <div class="column left"></div>
+
+    <h1 id= "flex-head">SketchMix - Random Art Warmups</h1>
+
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Popup -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <button id="closePopup" class="close-button">Close</button>
+            <h3>Info</h3>
+            <p>This is SketchMix, A simple site I made to solve the choice paralysis when choosing drawing exercises to practice for me. It will give you 3 random drawing exercise or warmups for you to do. It helps me with decided so someone might find some use for it</p>
+
+        </div>
+    </div>
+
+    <button id="openPopup" class="open-button">Info</button>
+    <div class="container">
+        <div class="labels-container">
+            <label id="exercise1" class="myExercise">       </label>
+            <label id="exercise2" class="myExercise"></label>
+            <label id="exercise3" class="myExercise"></label>
+        </div>
+        <button class="flex-button" id="myButton" onclick="myFunction()">Generate Exercises</button>
+    </div>
+    <script src="index.js"> </script>
+</body>
+</html>
+
