@@ -1,60 +1,55 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import OpenAI from 'openai';
+import { ref } from "vue";
 
-const msg = ref('');
-const openai = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: import.meta.env.VITE_API_KEY,
-  dangerouslyAllowBrowser: true,
-});
-
-async function main() {
-  const completion = await openai.chat.completions.create({
-    model: "arcee-ai/trinity-mini:free",
-    messages: [
-      {
-        "role": "user",
-        "content": [
-          {
-            "type": "text",
-            "text": "A short random idea for drawing in 1 sentence or less only. Use only text"
-          },
-          
-
-        ]
-      }
-    ]
-  });
-  const choiceMessage = completion?.choices?.[0]?.message;
-  // Normalize content: OpenRouter may return an array of content blocks or a string
-  const content = choiceMessage?.content;
-  let text = '';
-  if (Array.isArray(content)) {
-    text = content.map(c => (typeof c === 'string' ? c : c?.text || '')).join('');
-  } else if (typeof content === 'string') {
-    text = content;
-  } else {
-    text = JSON.stringify(content || '');
-  }
-
-  // Update the reactive ref so the template shows the response
-  msg.value = text;
-  console.log('AI reply:', text);
-}
+const msg = ref("");
+const loading = ref(false);
+const error = ref<string | null>(null);
 
 async function handleGenerate() {
-  await main();
+  loading.value = true;
+  error.value = null;
+  msg.value = "";
+
+  try {
+    const payload = {
+      model: "arcee-ai/trinity-mini:free",
+      messages: [
+        {
+          role: "user",
+          content: "A short random idea for drawing in 1 sentence or less only. Use only text",
+        },
+      ],
+    };
+
+    const res = await fetch("/api/drawing-idea", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data?.error || `Request failed (${res.status})`);
+    }
+
+    msg.value = data?.choices?.[0]?.message?.content ?? "No response";
+  } catch (e: any) {
+    error.value = e?.message ?? "Something went wrong";
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 
 <template>
-
   <div class="app">
-    <button class="prompt-button" type="button" @click="handleGenerate">
-      Generate drawing idea
+    <button class="prompt-button" type="button" @click="handleGenerate" :disabled="loading">
+      {{ loading ? "Generating..." : "Generate drawing idea" }}
     </button>
-    <p v-if="msg" class="prompt-result">{{ msg }}</p>
+
+    <p v-if="error" style="margin-top: 12px;">Error: {{ error }}</p>
+    <p v-else-if="msg" class="prompt-result">{{ msg }}</p>
   </div>
 </template>
 
